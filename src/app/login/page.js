@@ -1,3 +1,4 @@
+// app/login/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -131,4 +132,4 @@ export default function AuthPage() {
       </div>
     </div>
   );
-} 
+}
