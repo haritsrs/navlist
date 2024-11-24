@@ -1,10 +1,21 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { UserCircle } from 'lucide-react';
-import Link from 'next/link';  // Import Link for navigation
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/components/auth';  // Import your existing auth context
 
 const DashboardPage = () => {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();  // Get authentication status from your auth context
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5]">
       {/* Profile Icon */}
