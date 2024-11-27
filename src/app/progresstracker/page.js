@@ -1,0 +1,219 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/components/auth";
+
+// Animated Background Component
+const ProgressTrackerPageAnimatedBackground = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {/* Gradient Base */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5] opacity-100"></div>
+
+      {/* Animated Layers */}
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-[#9bbb98]/40 via-[#a5c4a5]/30 to-[#a5dba5]/20 animate-pulse opacity-50"
+        style={{
+          animationDuration: "1s",
+          animationIterationCount: "infinite",
+        }}
+      ></div>
+
+      {/* Floating Organic Shapes */}
+      {[...Array(15)].map((_, index) => (
+        <div
+          key={index}
+          className={`absolute bg-white/10 rounded-full blur-sm floating-shape floating-shape-${index}`}
+          style={{
+            width: `${Math.random() * 150 + 50}px`,
+            height: `${Math.random() * 150 + 50}px`,
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+const ProgressBar = ({ category, percentage, color, completedTasks, totalTasks }) => (
+  <div className="mb-4">
+    <div className="flex justify-between mb-1">
+      <span className="text-gray-700">{category}</span>
+      <span className="text-gray-600">
+        {percentage.toFixed(1)}% ({completedTasks}/{totalTasks} tasks)
+      </span>
+    </div>
+    <div className="w-full bg-gray-200 rounded-full h-4">
+      <div
+        className="h-4 rounded-full transition-all duration-500"
+        style={{
+          width: `${percentage}%`,
+          backgroundColor: color
+        }}
+      />
+    </div>
+  </div>
+);
+
+const DonutChart = ({ data }) => {
+  const size = 200;
+  const center = size / 2;
+  const radius = 80;
+  const strokeWidth = 40;
+
+  let startAngle = 0;
+  const total = data.reduce((sum, item) => sum + item.percentage, 0) || 100;
+
+  return (
+    <svg width={size} height={size} className="transform -rotate-90">
+      {data.map((item, index) => {
+        const percentage = (item.percentage / total) * 100;
+        const angle = (percentage / 100) * 360;
+        const endAngle = startAngle + angle;
+        
+        const x1 = center + radius * Math.cos((startAngle * Math.PI) / 180);
+        const y1 = center + radius * Math.sin((startAngle * Math.PI) / 180);
+        const x2 = center + radius * Math.cos((endAngle * Math.PI) / 180);
+        const y2 = center + radius * Math.sin((endAngle * Math.PI) / 180);
+        
+        const largeArcFlag = angle > 180 ? 1 : 0;
+        
+        const pathData = [
+          `M ${x1} ${y1}`,
+          `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+        ].join(' ');
+        
+        const path = (
+          <path
+            key={index}
+            d={pathData}
+            fill="none"
+            stroke={item.color}
+            strokeWidth={strokeWidth}
+          />
+        );
+        
+        startAngle += angle;
+        return path;
+      })}
+      <circle
+        cx={center}
+        cy={center}
+        r={radius - strokeWidth / 2}
+        fill="white"
+      />
+    </svg>
+  );
+};
+
+const ProgressTrackerPage = () => {
+  const router = useRouter();
+  const { user } = useAuth();
+  const [username, setUsername] = useState("");
+  const [progressData, setProgressData] = useState([
+    { category: "Work", percentage: 0, color: "#ff4444", completedTasks: 0, totalTasks: 0 },
+    { category: "Personal", percentage: 0, color: "#66cc66", completedTasks: 0, totalTasks: 0 },
+    { category: "Study", percentage: 0, color: "#4444ff", completedTasks: 0, totalTasks: 0 }
+  ]);
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else {
+      const storedUsername = localStorage.getItem("username");
+      if (storedUsername) {
+        setUsername(storedUsername);
+      } else {
+        setUsername(user?.email.split("@")[0]);
+      }
+
+      // Calculate progress from tasks
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      const progressByCategory = progressData.map(category => {
+        const categoryTasks = tasks.filter(task => task.category === category.category);
+        const completedTasks = categoryTasks.filter(task => task.completed).length;
+        const totalTasks = categoryTasks.length;
+        const percentage = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
+
+        return {
+          ...category,
+          completedTasks,
+          totalTasks,
+          percentage
+        };
+      });
+
+      setProgressData(progressByCategory);
+    }
+  }, [user, router]);
+
+  return (
+    <div className="min-h-screen w-full">
+      {/* Animated Background */}
+      <ProgressTrackerPageAnimatedBackground />
+
+      <div className="p-5 relative z-10">
+        <Link href="/" className="inline-flex items-center text-gray-800 hover:text-gray-600">
+          <ArrowLeft className="h-6 w-6 mr-2" />
+          Back to Dashboard
+        </Link>
+      </div>
+
+      <div className="p-5">
+        <div className="bg-white rounded-lg overflow-hidden max-w-2xl mx-auto relative z-10">
+          <div className="bg-[#2F5233] p-4 rounded-t-lg">
+            <h1 className="text-2xl font-bold text-white text-center">PROGRESS TRACKER</h1>
+          </div>
+          
+          <div className="p-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="w-48 h-48">
+                <DonutChart data={progressData} />
+              </div>
+              
+              <div className="flex-1 w-full">
+                {progressData.map((item, index) => (
+                  <ProgressBar
+                    key={index}
+                    category={item.category}
+                    percentage={item.percentage}
+                    color={item.color}
+                    completedTasks={item.completedTasks}
+                    totalTasks={item.totalTasks}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4 text-black">Recently Completed Tasks</h2>
+              <div className="space-y-2">
+                {JSON.parse(localStorage.getItem("tasks") || "[]")
+                  .filter(task => task.completed)
+                  .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+                  .slice(0, 5)
+                  .map(task => (
+                    <div key={task.id} className="bg-gray-50 p-3 rounded-md">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-800">{task.text}</span>
+                        <div className="text-sm text-gray-500">
+                          <span className="mr-3">{task.category}</span>
+                          {new Date(task.completedAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProgressTrackerPage;

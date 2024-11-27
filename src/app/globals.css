@@ -18,4 +18,55 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  /* Apply the animated background */
+  background-size: 400% 400%;
+  animation: gradientBackground 5s ease infinite;
+}
+
+/* Floating animation keyframes */
+@keyframes float {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(55px, -10px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.floating-shape {
+  animation: float 8s infinite ease-in-out;
+}
+
+.floating-shape-0 {
+  animation-duration: 6s;
+  animation-delay: 0s;
+}
+
+.floating-shape-1 {
+  animation-duration: 7s;
+  animation-delay: 1s;
+}
+
+.floating-shape-2 {
+  animation-duration: 8s;
+  animation-delay: 2s;
+}
+
+/* Add a background gradient animation */
+@keyframes gradientBackground {
+  0% {
+    background-color: #a3cfa8;
+    background-image: linear-gradient(to right, #a3cfa8, #a5c4a5);
+  }
+  50% {
+    background-color: #a5c4a5;
+    background-image: linear-gradient(to right, #a5c4a5, #a5dba5);
+  }
+  100% {
+    background-color: #a3cfa8;
+    background-image: linear-gradient(to right, #a3cfa8, #a5c4a5);
+  }
 }

@@ -18,7 +18,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useAuth(); 
 
   useEffect(() => {
     if (user) {
@@ -72,7 +72,7 @@ export default function AuthPage() {
         
         <form onSubmit={handleSubmit} className="mt-8">
           <div className="mb-4">
-            <label htmlFor="email" className="block text-left text-sm mb-2">Email / Account</label>
+            <label htmlFor="email" className="block text-black text-sm mb-2">Email / Account</label>
             <input
               type="email"
               id="email"
@@ -84,7 +84,7 @@ export default function AuthPage() {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="password" className="block text-left text-sm mb-2">Password</label>
+            <label htmlFor="password" className="block text-black text-sm mb-2">Password</label>
             <input
               type="password"
               id="password"
