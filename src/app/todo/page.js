@@ -178,19 +178,19 @@ const TodoPage = () => {
         <div className="flex justify-center gap-4 mb-6">
           <button
             onClick={() => setFilter("all")}
-            className={`py-2 px-4 rounded-md ${filter === "all" ? "bg-[#9bbb98] text-white" : "bg-gray-200"}`}
+            className={`py-2 px-4 rounded-md ${filter === "all" ? "bg-[#9bbb98] text-white" : "bg-gray-200 text-black"}`}
           >
             All
           </button>
           <button
             onClick={() => setFilter("active")}
-            className={`py-2 px-4 rounded-md ${filter === "active" ? "bg-[#9bbb98] text-white" : "bg-gray-200"}`}
+            className={`py-2 px-4 rounded-md ${filter === "active" ? "bg-[#9bbb98] text-white" : "bg-gray-200 text-black"}`}
           >
             Active
           </button>
           <button
             onClick={() => setFilter("completed")}
-            className={`py-2 px-4 rounded-md ${filter === "completed" ? "bg-[#9bbb98] text-white" : "bg-gray-200"}`}
+            className={`py-2 px-4 rounded-md ${filter === "completed" ? "bg-[#9bbb98] text-white" : "bg-gray-200 text-black"}`}
           >
             Completed
           </button>

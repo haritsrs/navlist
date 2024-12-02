@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-// Animated Background Component (Now a static component)
+
 const CalendarPageAnimatedBackground = () => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -213,7 +213,7 @@ const CalendarPage = () => {
 
         {/* Box Container with Background Gradient */}
         <div className="bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5] p-10 rounded-lg shadow-xl">
-          <h1 className="text-4xl font-bold text-white mb-10 text-center">KALENDER</h1>
+          <h1 className="text-4xl font-bold text-white mb-10 text-center">Calendar & Deadline</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {/* Upcoming Items Section */}
@@ -256,7 +256,7 @@ const CalendarPage = () => {
                 >
                   &lt;
                 </button>
-                <span className="text-xl font-semibold">{`${currentDate.toLocaleString("default", {
+                <span className="text-xl font-semibold text-black">{`${currentDate.toLocaleString("default", {
                   month: "long",
                 })} ${currentDate.getFullYear()}`}</span>
                 <button

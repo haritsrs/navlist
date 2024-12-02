@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Mail, Lock } from "lucide-react";
-import { useAuth } from "@/app/components/auth"; // Assuming useAuth hook is available
+import { User, Mail } from "lucide-react";
+import { useAuth } from "@/app/components/auth";
 
 const AccountPage = () => {
-  const { user } = useAuth(); // Get user info from authentication hook
-  const [editingSection, setEditingSection] = useState(null); // Track section being edited (profile/password)
-  const [message, setMessage] = useState({ type: "", content: "" }); // Message for success/error notifications
+  const { user } = useAuth();
+  const [editingSection, setEditingSection] = useState(null);
+  const [message, setMessage] = useState({ type: "", content: "" });
 
-  // State to hold form data
   const [formData, setFormData] = useState({
     displayName: user?.displayName || "",
     email: user?.email || "",
@@ -22,7 +21,6 @@ const AccountPage = () => {
     (provider) => provider.providerId === "google.com"
   );
 
-  // Update form data whenever user info changes
   useEffect(() => {
     if (user) {
       setFormData({
@@ -35,7 +33,6 @@ const AccountPage = () => {
     }
   }, [user]);
 
-  // Handle input changes for all form fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -44,7 +41,6 @@ const AccountPage = () => {
     }));
   };
 
-  // Handle form submission (both profile and password sections)
   const handleSubmit = async (e, section) => {
     e.preventDefault();
     try {
@@ -52,27 +48,26 @@ const AccountPage = () => {
         if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
           throw new Error("Passwords do not match.");
         }
-        // Call API or update password logic
+        // Implement password change logic
       } else if (section === "profile") {
-        // Update localStorage with new username
         localStorage.setItem("username", formData.displayName);
       }
 
       setMessage({ type: "success", content: "Changes saved successfully!" });
-      setEditingSection(null); // Reset editing state after success
+      setEditingSection(null);
     } catch (error) {
       setMessage({ type: "error", content: error.message });
     }
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5] p-5">
-      <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Account Settings</h1>
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5] p-5 animate-fadeIn bg-animated">
+      <h1 className="text-3xl font-bold text-gray-800 text-center mb-6 animate-slideIn">Account Settings</h1>
 
       <div className="text-center mb-6">
         <button
           onClick={() => window.history.back()}
-          className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800"
+          className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 animate-bounceOnHover"
         >
           Back to Dashboard
         </button>
@@ -82,13 +77,13 @@ const AccountPage = () => {
         <div
           className={`mb-6 p-4 rounded-md ${
             message.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
-          }`}
+          } animate-messageFadeIn`}
         >
           {message.content}
         </div>
       )}
 
-      <form className="max-w-2xl mx-auto bg-[#F7F9F4] p-6 rounded-md shadow-md">
+      <form className="max-w-2xl mx-auto bg-[#F7F9F4] p-6 rounded-md shadow-md animate-formSlideIn">
         {/* Profile Section */}
         <section className="mb-8">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Profile Information</h2>
@@ -105,7 +100,7 @@ const AccountPage = () => {
                   disabled={editingSection !== "profile"}
                   className={`w-full p-3 border rounded-md shadow-sm bg-white text-black ${
                     editingSection === "profile" && formData.displayName.trim() === "" ? "border-red-500" : ""
-                  }`}
+                  } animate-inputFocus`}
                 />
                 {editingSection === "profile" && formData.displayName.trim() === "" && (
                   <span className="text-red-500 text-sm">Display name cannot be empty</span>
@@ -123,7 +118,7 @@ const AccountPage = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   disabled={editingSection !== "profile"}
-                  className="w-full p-3 border rounded-md shadow-sm bg-white text-black"
+                  className="w-full p-3 border rounded-md shadow-sm bg-white text-black animate-inputFocus"
                 />
               </div>
             </div>
@@ -135,14 +130,14 @@ const AccountPage = () => {
                 <button
                   type="button"
                   onClick={() => setEditingSection(null)}
-                  className="py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-800"
+                  className="py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-800 animate-bounceOnHover"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   onClick={(e) => handleSubmit(e, "profile")}
-                  className="ml-2 py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800"
+                  className="ml-2 py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 animate-bounceOnHover"
                 >
                   Save Changes
                 </button>
@@ -151,7 +146,7 @@ const AccountPage = () => {
               <button
                 type="button"
                 onClick={() => setEditingSection("profile")}
-                className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800"
+                className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 animate-bounceOnHover"
               >
                 Edit Profile
               </button>
@@ -159,6 +154,62 @@ const AccountPage = () => {
           </div>
         </section>
       </form>
+
+      {/* Animation CSS */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideIn {
+          from { transform: translateY(-20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes formSlideIn {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes inputFocus {
+          from { border-color: #e0e4d4; }
+          to { border-color: #9bbb98; }
+        }
+        @keyframes bounceOnHover {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        @keyframes messageFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes bgAnimate {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s ease-in;
+        }
+        .animate-slideIn {
+          animation: slideIn 0.5s ease-out;
+        }
+        .animate-formSlideIn {
+          animation: formSlideIn 0.5s ease-out;
+        }
+        .animate-inputFocus {
+          animation: inputFocus 0.3s ease-in-out;
+        }
+        .animate-bounceOnHover:hover {
+          animation: bounceOnHover 0.5s ease-in-out;
+        }
+        .animate-messageFadeIn {
+          animation: messageFadeIn 0.5s ease-in;
+        }
+        .bg-animated {
+          background-size: 200% 200%;
+          animation: bgAnimate 5s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };

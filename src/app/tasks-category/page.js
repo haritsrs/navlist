@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Circle, UserCircle } from "lucide-react";
 
-// Floating Shapes Component (identical to TodoPage)
+// Floating Shapes Component
 const FloatingShapes = () => {
   const [shapes, setShapes] = useState([]);
 
@@ -29,7 +29,7 @@ const FloatingShapes = () => {
       {shapes.map((style, index) => (
         <div
           key={index}
-          className={`absolute bg-white/10 rounded-full blur-lg floating-shape`}
+          className="absolute bg-white/10 rounded-full blur-sm floating-shape animate-floatingShape"
           style={style}
         ></div>
       ))}
@@ -68,21 +68,42 @@ const CategoryPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5] p-5 overflow-hidden">
-      {/* Floating Shapes */}
-      <FloatingShapes />
+    <div className="relative min-h-screen flex justify-center items-center">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Gradient Base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5] opacity-100"></div>
 
-      <div className="flex justify-end items-center mb-6 gap-2">
-        <span className="text-gray-800">Hello, {username}</span>
-        <UserCircle className="h-8 w-8 text-gray-800" />
+        {/* Animated Layers */}
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-[#9bbb98]/40 via-[#a5c4a5]/30 to-[#a5dba5]/20 animate-pulse opacity-50"
+          style={{
+            animationDuration: "1s",
+            animationIterationCount: "infinite",
+          }}
+        ></div>
+
+        {/* Floating Organic Shapes */}
+        {[...Array(15)].map((_, index) => (
+          <div
+            key={index}
+            className={`absolute bg-white/10 rounded-full blur-sm floating-shape floating-shape-${index}`}
+            style={{
+              width: `${Math.random() * 150 + 50}px`,
+              height: `${Math.random() * 150 + 50}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+            }}
+          />
+        ))}
       </div>
 
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+      <div className="w-[90%] max-w-[1200px] mx-auto bg-white rounded-lg shadow-lg p-6 relative z-10 animate-formSlideIn">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Task Categories</h1>
           <button
             onClick={handleBack}
-            className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800"
+            className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 animate-bounceOnHover"
           >
             Back to Dashboard
           </button>
@@ -93,7 +114,7 @@ const CategoryPage = () => {
             const { totalTasks, completedTasks, completionRate } = getCategoryStats(category);
             
             return (
-              <div key={category} className="bg-[#F7F9F4] p-4 rounded-md shadow-md">
+              <div key={category} className="bg-[#F7F9F4] p-4 rounded-md shadow-md animate-categoryCard">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold text-gray-800">{category}</h2>
                   <div className="py-1.5 px-3 bg-[#9bbb98] text-white rounded text-sm">
@@ -118,9 +139,7 @@ const CategoryPage = () => {
                         )}
                         <span className={`text-gray-800 ${
                           task.completed ? 'line-through text-gray-500' : ''
-                        }`}>
-                          {task.text}
-                        </span>
+                        }`}>{task.text}</span>
                       </div>
                       {task.completed && task.completedAt && (
                         <span className="text-sm text-gray-600">
@@ -140,6 +159,56 @@ const CategoryPage = () => {
           })}
         </div>
       </div>
+
+      {/* Animation CSS */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideIn {
+          from { transform: translateY(-20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes formSlideIn {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes bounceOnHover {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        @keyframes categoryCard {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes floatingShape {
+          0% { opacity: 0.3; transform: scale(0.5); }
+          25% { opacity: 0.6; transform: scale(0.75); }
+          50% { opacity: 0.9; transform: scale(1); }
+          75% { opacity: 0.6; transform: scale(0.75); }
+          100% { opacity: 0.3; transform: scale(0.5); }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s ease-in;
+        }
+        .animate-slideIn {
+          animation: slideIn 0.5s ease-out;
+        }
+        .animate-formSlideIn {
+          animation: formSlideIn 0.5s ease-out;
+        }
+        .animate-bounceOnHover:hover {
+          animation: bounceOnHover 0.5s ease-in-out;
+        }
+        .animate-categoryCard {
+          animation: categoryCard 0.5s ease-in;
+        }
+        .animate-floatingShape {
+          animation: floatingShape 2s infinite alternate ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };

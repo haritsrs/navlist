@@ -77,6 +77,7 @@ export default function AuthPage() {
               type="email"
               id="email"
               className="w-full p-3 rounded-full border-2 border-gray-200 bg-gray-50 focus:border-[#4d665e] focus:outline-none"
+              style={{ color: 'black' }} // Set the text color to black
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -89,6 +90,7 @@ export default function AuthPage() {
               type="password"
               id="password"
               className="w-full p-3 rounded-full border-2 border-gray-200 bg-gray-50 focus:border-[#4d665e] focus:outline-none"
+              style={{ color: 'black' }} // Set the text color to black
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
