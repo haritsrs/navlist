@@ -149,7 +149,7 @@ const TodoPage = () => {
             placeholder="New Task..."
             value={newTask}
             onChange={(e) => setNewTask(e.target.value)}
-            className="flex-grow p-3 border rounded-md shadow-sm bg-white min-w-[200px]"
+            className="text-black flex-grow p-3 border rounded-md shadow-sm bg-white min-w-[200px]"
           />
           <select
             value={category}

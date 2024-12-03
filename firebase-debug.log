@@ -1,0 +1,33 @@
+[debug] [2024-12-03T10:20:32.894Z] ----------------------------------------------------------------------
+[debug] [2024-12-03T10:20:32.897Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\WINDOWS\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2024-12-03T10:20:32.898Z] CLI Version:   13.25.0
+[debug] [2024-12-03T10:20:32.898Z] Platform:      win32
+[debug] [2024-12-03T10:20:32.898Z] Node Version:  v22.11.0
+[debug] [2024-12-03T10:20:32.898Z] Time:          Tue Dec 03 2024 17:20:32 GMT+0700 (Western Indonesia Time)
+[debug] [2024-12-03T10:20:32.898Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-12-03T10:20:32.985Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-12-03T10:20:32.985Z] > authorizing via signed-in user (pctman18@gmail.com)
+[debug] [2024-12-03T10:20:32.985Z] [iam] checking project pbwkelompok5 for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2024-12-03T10:20:32.987Z] Checked if tokens are valid: true, expires at: 1733224789787
+[debug] [2024-12-03T10:20:32.987Z] Checked if tokens are valid: true, expires at: 1733224789787
+[debug] [2024-12-03T10:20:32.988Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/pbwkelompok5:testIamPermissions [none]
+[debug] [2024-12-03T10:20:32.988Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/pbwkelompok5:testIamPermissions x-goog-quota-user=projects/pbwkelompok5
+[debug] [2024-12-03T10:20:32.988Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/pbwkelompok5:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-12-03T10:20:34.090Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/pbwkelompok5:testIamPermissions 200
+[debug] [2024-12-03T10:20:34.090Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/pbwkelompok5:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-12-03T10:20:34.091Z] Checked if tokens are valid: true, expires at: 1733224789787
+[debug] [2024-12-03T10:20:34.091Z] Checked if tokens are valid: true, expires at: 1733224789787
+[debug] [2024-12-03T10:20:34.091Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/pbwkelompok5 [none]
+[debug] [2024-12-03T10:20:34.664Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/pbwkelompok5 200
+[debug] [2024-12-03T10:20:34.664Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/pbwkelompok5 {"projectId":"pbwkelompok5","projectNumber":"371933318310","displayName":"pbwkelompok5","name":"projects/pbwkelompok5","resources":{"hostingSite":"pbwkelompok5"},"state":"ACTIVE","etag":"1_af6840cd-2cfd-47d8-874f-b74bf4d9a2c0"}
+[debug] [2024-12-03T10:20:46.482Z] SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at findDependency (C:\Users\WINDOWS\AppData\Roaming\npm\node_modules\firebase-tools\lib\frameworks\utils.js:188:23)
+    at prepareFrameworks (C:\Users\WINDOWS\AppData\Roaming\npm\node_modules\firebase-tools\lib\frameworks\index.js:124:67)
+    at deploy (C:\Users\WINDOWS\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:58:54)
+    at Command.actionFn (C:\Users\WINDOWS\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\deploy.js:136:32)
+    at C:\Users\WINDOWS\AppData\Roaming\npm\node_modules\firebase-tools\lib\command.js:235:25
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: An unexpected error has occurred.
