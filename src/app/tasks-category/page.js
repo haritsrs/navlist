@@ -69,21 +69,10 @@ const CategoryPage = () => {
 
   return (
     <div className="relative min-h-screen flex justify-center items-center">
-      {/* Animated Background */}
+      {/* Floating Shapes Component */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Gradient Base */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5] opacity-100"></div>
-
-        {/* Animated Layers */}
-        <div
-          className="absolute inset-0 bg-gradient-to-br from-[#9bbb98]/40 via-[#a5c4a5]/30 to-[#a5dba5]/20 animate-pulse opacity-50"
-          style={{
-            animationDuration: "1s",
-            animationIterationCount: "infinite",
-          }}
-        ></div>
-
-        {/* Floating Organic Shapes */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#9bbb98]/40 via-[#a5c4a5]/30 to-[#a5dba5]/20 animate-pulse opacity-50"></div>
         {[...Array(15)].map((_, index) => (
           <div
             key={index}
@@ -98,15 +87,18 @@ const CategoryPage = () => {
         ))}
       </div>
 
+      {/* Back to Dashboard Button */}
+      <button
+        onClick={handleBack}
+        className="fixed top-4 left-4 py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 animate-bounceOnHover"
+      >
+        Back to Dashboard
+      </button>
+
+      {/* Main Content */}
       <div className="w-[90%] max-w-[1200px] mx-auto bg-white rounded-lg shadow-lg p-6 relative z-10 animate-formSlideIn">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Task Categories</h1>
-          <button
-            onClick={handleBack}
-            className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 animate-bounceOnHover"
-          >
-            Back to Dashboard
-          </button>
         </div>
 
         <div className="space-y-4">
@@ -126,8 +118,7 @@ const CategoryPage = () => {
                   {getTasksByCategory(category).map((task) => (
                     <li 
                       key={task.id} 
-                      className={`
-                        bg-white p-3 rounded-md shadow-sm flex justify-between items-center
+                      className={`bg-white p-3 rounded-md shadow-sm flex justify-between items-center
                         ${task.completed ? "opacity-50" : ""}
                       `}
                     >
@@ -137,9 +128,9 @@ const CategoryPage = () => {
                         ) : (
                           <Circle className="w-5 h-5 text-gray-400" />
                         )}
-                        <span className={`text-gray-800 ${
-                          task.completed ? 'line-through text-gray-500' : ''
-                        }`}>{task.text}</span>
+                        <span className={`text-gray-800 ${task.completed ? 'line-through text-gray-500' : ''}`}>
+                          {task.text}
+                        </span>
                       </div>
                       {task.completed && task.completedAt && (
                         <span className="text-sm text-gray-600">

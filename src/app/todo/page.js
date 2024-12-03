@@ -133,12 +133,13 @@ const TodoPage = () => {
       <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">To-Do List</h1>
 
       <div className="flex justify-center gap-4 mb-6">
-        <button
-          onClick={handleBack}
-          className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800"
-        >
-          Back to Dashboard
-        </button>
+      <button
+      onClick={() => window.history.back()}
+      className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 transition-transform transform hover:translate-x-0 hover:translate-y-1 animate-bounceOnHover"
+>
+      Back to Dashboard
+      </button>
+
       </div>
 
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">

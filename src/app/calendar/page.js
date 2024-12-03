@@ -197,12 +197,13 @@ const CalendarPage = () => {
 
       <div className="max-w-7xl mx-auto p-8 relative z-10">
         <div className="flex justify-center gap-4 mb-6">
-          <button
-            onClick={handleBack}
-            className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800"
-          >
-            Back to Dashboard
+        <button
+          onClick={() => window.history.back()}
+          className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 transition-transform transform hover:translate-x-0 hover:translate-y-1 animate-bounceOnHover"
+>
+           Back to Dashboard
           </button>
+
           <button
             onClick={() => router.push("/todo")}
             className="py-2 px-4 bg-[#9bbb98] hover:bg-[#8aa989] text-white rounded"

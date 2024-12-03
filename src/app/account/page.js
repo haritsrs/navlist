@@ -67,7 +67,7 @@ const AccountPage = () => {
       <div className="text-center mb-6">
         <button
           onClick={() => window.history.back()}
-          className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 animate-bounceOnHover"
+          className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 transition-transform transform hover:translate-x-0 hover:translate-y-1 animate-bounceOnHover"
         >
           Back to Dashboard
         </button>
