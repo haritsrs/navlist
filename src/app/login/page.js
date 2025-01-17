@@ -80,7 +80,7 @@ export default function AuthPage() {
             <input
               type="email"
               id="email"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#4d665e] transition"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#4d665e] text-black transition"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -92,7 +92,7 @@ export default function AuthPage() {
             <input
               type="password"
               id="password"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#4d665e] transition"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#4d665e] text-black transition"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
