@@ -2,25 +2,28 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Circle, UserCircle } from "lucide-react";
+import { CheckCircle2, Circle } from "lucide-react";
+import { 
+  collection, 
+  query, 
+  onSnapshot,
+  where,
+  orderBy 
+} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../../../firebase';
 
 // Floating Shapes Component
 const FloatingShapes = () => {
   const [shapes, setShapes] = useState([]);
 
   useEffect(() => {
-    const shapesArray = [...Array(15)].map(() => {
-      const randomWidth = Math.random() * 150 + 50;
-      const randomHeight = Math.random() * 150 + 50;
-      const randomTop = Math.random() * 100;
-      const randomLeft = Math.random() * 100;
-      return {
-        width: `${randomWidth}px`,
-        height: `${randomHeight}px`,
-        top: `${randomTop}%`,
-        left: `${randomLeft}%`,
-      };
-    });
+    const shapesArray = [...Array(15)].map(() => ({
+      width: `${Math.random() * 150 + 50}px`,
+      height: `${Math.random() * 150 + 50}px`,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+    }));
     setShapes(shapesArray);
   }, []);
 
@@ -39,14 +42,45 @@ const FloatingShapes = () => {
 
 const CategoryPage = () => {
   const [tasks, setTasks] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const categories = ["Work", "Personal", "Study"];
-  const username = localStorage.getItem("username") || "User";
   const router = useRouter();
 
+  // Check authentication
   useEffect(() => {
-    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    setTasks(savedTasks);
-  }, []);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        router.push('/login');
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  // Subscribe to Firestore updates
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, 'tasks'),
+      where('userId', '==', user.uid),
+      orderBy('createdAt', 'desc')
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tasksData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setTasks(tasksData);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   const getTasksByCategory = (category) => {
     return tasks.filter((task) => task.category === category);
@@ -63,33 +97,26 @@ const CategoryPage = () => {
     return { totalTasks, completedTasks, completionRate };
   };
 
-  const handleBack = () => {
-    router.push("/");
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5]">
+        <div className="text-xl text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen flex justify-center items-center">
-      {/* Floating Shapes Component */}
+      {/* Floating Shapes Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5] opacity-100"></div>
         <div className="absolute inset-0 bg-gradient-to-br from-[#9bbb98]/40 via-[#a5c4a5]/30 to-[#a5dba5]/20 animate-pulse opacity-50"></div>
-        {[...Array(15)].map((_, index) => (
-          <div
-            key={index}
-            className={`absolute bg-white/10 rounded-full blur-sm floating-shape floating-shape-${index}`}
-            style={{
-              width: `${Math.random() * 150 + 50}px`,
-              height: `${Math.random() * 150 + 50}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-            }}
-          />
-        ))}
+        <FloatingShapes />
       </div>
 
       {/* Back to Dashboard Button */}
       <button
-        onClick={handleBack}
+        onClick={() => router.push("/")}
         className="fixed top-4 left-4 py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 animate-bounceOnHover"
       >
         Back to Dashboard
@@ -99,6 +126,11 @@ const CategoryPage = () => {
       <div className="w-[90%] max-w-[1200px] mx-auto bg-white rounded-lg shadow-lg p-6 relative z-10 animate-formSlideIn">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Task Categories</h1>
+          {user && (
+            <div className="text-gray-600">
+              {user.email}
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">

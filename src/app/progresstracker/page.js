@@ -1,10 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/components/auth";
+import { 
+  collection, 
+  query, 
+  where, 
+  getDocs, 
+  orderBy, 
+  limit,
+  onSnapshot
+} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../../../firebase';
 
 // Animated Background Component
 const ProgressTrackerPageAnimatedBackground = () => (
@@ -88,24 +96,48 @@ const DonutChart = ({ data }) => {
 
 const ProgressTrackerPage = () => {
   const router = useRouter();
-  const { user } = useAuth();
-  const [username, setUsername] = useState("");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [progressData, setProgressData] = useState([
     { category: "Work", percentage: 0, color: "#ff4444", completedTasks: 0, totalTasks: 0 },
     { category: "Personal", percentage: 0, color: "#66cc66", completedTasks: 0, totalTasks: 0 },
     { category: "Study", percentage: 0, color: "#4444ff", completedTasks: 0, totalTasks: 0 }
   ]);
+  const [recentTasks, setRecentTasks] = useState([]);
 
+  // Check authentication state
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    } else {
-      const storedUsername = localStorage.getItem("username");
-      setUsername(storedUsername || user?.email.split("@")[0]);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        router.push('/login');
+      }
+      setLoading(false);
+    });
 
-      const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-      const progressByCategory = progressData.map(category => {
-        const categoryTasks = tasks.filter(task => task.category === category.category);
+    return () => unsubscribe();
+  }, [router]);
+
+  // Subscribe to Firestore updates for tasks
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, 'tasks'),
+      where('userId', '==', user.uid),
+      orderBy('createdAt', 'desc')
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tasksData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      // Calculate progress data
+      const updatedProgressData = progressData.map(category => {
+        const categoryTasks = tasksData.filter(task => task.category === category.category);
         const completedTasks = categoryTasks.filter(task => task.completed).length;
         const totalTasks = categoryTasks.length;
         const percentage = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
@@ -113,9 +145,27 @@ const ProgressTrackerPage = () => {
         return { ...category, completedTasks, totalTasks, percentage };
       });
 
-      setProgressData(progressByCategory);
-    }
-  }, [user, router]);
+      setProgressData(updatedProgressData);
+
+      // Update recent completed tasks
+      const recentCompleted = tasksData
+        .filter(task => task.completed)
+        .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+        .slice(0, 5);
+      
+      setRecentTasks(recentCompleted);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5]">
+        <div className="text-xl text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full">
@@ -124,7 +174,7 @@ const ProgressTrackerPage = () => {
         <div className="text-center mb-6">
           <button
             onClick={() => window.history.back()}
-               className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 transition-transform transform hover:translate-x-0 hover:translate-y-1 animate-bounceOnHover"
+            className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 transition-transform transform hover:translate-x-0 hover:translate-y-1 animate-bounceOnHover"
           >
             Back to Dashboard
           </button>
@@ -157,28 +207,23 @@ const ProgressTrackerPage = () => {
             <div className="mt-8">
               <h2 className="text-xl font-semibold mb-4 text-black">Recently Completed Tasks</h2>
               <div className="space-y-2">
-                {JSON.parse(localStorage.getItem("tasks") || "[]")
-                  .filter(task => task.completed)
-                  .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
-                  .slice(0, 5)
-                  .map(task => (
-                    <div key={task.id} className="bg-gray-50 p-3 rounded-md">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-800">{task.text}</span>
-                        <div className="text-sm text-gray-500">
-                          <span className="mr-3">{task.category}</span>
-                          {new Date(task.completedAt).toLocaleDateString()}
-                        </div>
+                {recentTasks.map(task => (
+                  <div key={task.id} className="bg-gray-50 p-3 rounded-md">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-800">{task.text}</span>
+                      <div className="text-sm text-gray-500">
+                        <span className="mr-3">{task.category}</span>
+                        {new Date(task.completedAt).toLocaleDateString()}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Animation CSS */}
       <style jsx global>{`
         @keyframes scaleOnHover {
           0% { transform: scale(1); }

@@ -2,25 +2,31 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { 
+  collection, 
+  addDoc, 
+  deleteDoc,
+  updateDoc,
+  doc,
+  query,
+  onSnapshot,
+  orderBy,
+  where
+} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../../../firebase';
 
 // Floating Shapes Component
 const FloatingShapes = () => {
-  // Generate random shapes only once when the component is mounted
   const [shapes, setShapes] = useState([]);
 
   useEffect(() => {
-    const shapesArray = [...Array(15)].map(() => {
-      const randomWidth = Math.random() * 150 + 50;
-      const randomHeight = Math.random() * 150 + 50;
-      const randomTop = Math.random() * 100;
-      const randomLeft = Math.random() * 100;
-      return {
-        width: `${randomWidth}px`,
-        height: `${randomHeight}px`,
-        top: `${randomTop}%`,
-        left: `${randomLeft}%`,
-      };
-    });
+    const shapesArray = [...Array(15)].map(() => ({
+      width: `${Math.random() * 150 + 50}px`,
+      height: `${Math.random() * 150 + 50}px`,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+    }));
     setShapes(shapesArray);
   }, []);
 
@@ -43,69 +49,105 @@ const TodoPage = () => {
   const [deadline, setDeadline] = useState("");
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Check authentication state
   useEffect(() => {
-    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    setTasks(savedTasks);
-  }, []);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        router.push('/login');
+      }
+      setLoading(false);
+    });
 
-  const addTask = () => {
-    if (!newTask.trim()) {
+    return () => unsubscribe();
+  }, [router]);
+
+  // Subscribe to Firestore updates
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, 'tasks'),
+      where('userId', '==', user.uid),
+      orderBy('createdAt', 'desc')
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tasksData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setTasks(tasksData);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const addTask = async () => {
+    if (!newTask.trim() || !user) {
       alert("Task cannot be empty!");
       return;
     }
 
-    const task = {
-      id: Date.now(),
-      text: newTask,
-      category,
-      completed: false,
-      completedAt: null,
-      deadline: deadline || null,
-      type: "task",
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const task = {
+        text: newTask,
+        category,
+        completed: false,
+        completedAt: null,
+        deadline: deadline || null,
+        type: "task",
+        createdAt: new Date().toISOString(),
+        userId: user.uid,
+      };
 
-    const updatedTasks = [...tasks, task];
-    setTasks(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    setNewTask("");
-    setDeadline("");
+      await addDoc(collection(db, 'tasks'), task);
+      setNewTask("");
+      setDeadline("");
+    } catch (error) {
+      console.error("Error adding task: ", error);
+      alert("Failed to add task. Please try again.");
+    }
   };
 
-  const deleteTask = (taskId) => {
-    const updatedTasks = tasks.filter((task) => task.id !== taskId);
-    setTasks(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+  const deleteTask = async (taskId) => {
+    if (!user) return;
+
+    try {
+      await deleteDoc(doc(db, 'tasks', taskId));
+    } catch (error) {
+      console.error("Error deleting task: ", error);
+      alert("Failed to delete task. Please try again.");
+    }
   };
 
-  const toggleTaskCompletion = (taskId) => {
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === taskId) {
-        return {
-          ...task,
-          completed: !task.completed,
-          completedAt: !task.completed ? new Date().toISOString() : null,
-        };
-      }
-      return task;
-    });
-    setTasks(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+  const toggleTaskCompletion = async (taskId, currentStatus) => {
+    if (!user) return;
+
+    try {
+      const taskRef = doc(db, 'tasks', taskId);
+      await updateDoc(taskRef, {
+        completed: !currentStatus,
+        completedAt: !currentStatus ? new Date().toISOString() : null,
+      });
+    } catch (error) {
+      console.error("Error updating task: ", error);
+      alert("Failed to update task. Please try again.");
+    }
   };
 
   const sortedAndFilteredTasks = () => {
-    // Sort tasks by deadline, then by creation date
     const sortedTasks = [...tasks].sort((a, b) => {
-      // Tasks without deadline go to the end
       if (!a.deadline) return 1;
       if (!b.deadline) return -1;
-      
       return new Date(a.deadline) - new Date(b.deadline);
     });
 
-    // Filter tasks based on filter state
     return sortedTasks.filter(task => {
       if (filter === "active") return !task.completed;
       if (filter === "completed") return task.completed;
@@ -121,29 +163,29 @@ const TodoPage = () => {
     return deadlineDate < today;
   };
 
-  const handleBack = () => {
-    router.push("/");
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5]">
+        <div className="text-xl text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-[#9bbb98] via-[#a5c4a5] to-[#a5dba5] p-5 overflow-hidden">
-      {/* Floating Shapes */}
       <FloatingShapes />
-
       <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">To-Do List</h1>
 
       <div className="flex justify-center gap-4 mb-6">
-      <button
-      onClick={() => window.history.back()}
-      className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 transition-transform transform hover:translate-x-0 hover:translate-y-1 animate-bounceOnHover"
->
-      Back to Dashboard
-      </button>
-
+        <button
+          onClick={() => window.history.back()}
+          className="py-2 px-4 bg-[#F7F9F4] hover:bg-[#e0e4d4] rounded text-gray-800 transition-transform transform hover:translate-x-0 hover:translate-y-1 animate-bounceOnHover"
+        >
+          Back to Dashboard
+        </button>
       </div>
 
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        {/* Task Input */}
         <div className="flex gap-4 mb-6 flex-wrap">
           <input
             type="text"
@@ -175,7 +217,6 @@ const TodoPage = () => {
           </button>
         </div>
 
-        {/* Filter Buttons */}
         <div className="flex justify-center gap-4 mb-6">
           <button
             onClick={() => setFilter("all")}
@@ -197,7 +238,6 @@ const TodoPage = () => {
           </button>
         </div>
 
-        {/* Task List */}
         <ul className="space-y-4">
           {sortedAndFilteredTasks().map((task) => (
             <li 
@@ -212,7 +252,7 @@ const TodoPage = () => {
                 <input
                   type="checkbox"
                   checked={task.completed}
-                  onChange={() => toggleTaskCompletion(task.id)}
+                  onChange={() => toggleTaskCompletion(task.id, task.completed)}
                   className="form-checkbox h-5 w-5"
                 />
                 <div>
